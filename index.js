@@ -33,16 +33,18 @@ async function run() {
 
     const herotoycollection= client.db('herotoyDB').collection('herotoy');
 
+    app.get('/toy',async(re,res)=>{
+      const cursor = herotoycollection.find();
+      const result=await cursor.toArray();
+      res.send(result);
+    })
+
     app.post('/toy', async(req,res)=>{
       const newToy=req.body;
       console.log(newToy);
       const result = await herotoycollection.insertOne(newToy);
       res.send(result);
     })
-
-
-
-
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });

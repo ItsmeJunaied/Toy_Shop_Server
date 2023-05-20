@@ -1,11 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
-const app=express();
-const port =process.env.PORT || 5000;
+const app = express();
+const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
@@ -31,16 +31,28 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const herotoycollection= client.db('herotoyDB').collection('herotoy');
+    const herotoycollection = client.db('herotoyDB').collection('herotoy');
 
-    app.get('/toy',async(re,res)=>{
+    app.get('/toy', async (re, res) => {
       const cursor = herotoycollection.find();
-      const result=await cursor.toArray();
+      const result = await cursor.toArray();
       res.send(result);
     })
 
-    app.post('/toy', async(req,res)=>{
-      const newToy=req.body;
+    app.get('/toy/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+
+      const option = {
+        projection: { name: 1, sname: 1, email: 1, price: 1, rating: 1, quantity: 1, detail: 1, photo: 1 },
+
+      };
+      const result = await herotoycollection.findOne(query,option);
+      res.send(result);
+    })
+
+    app.post('/toy', async (req, res) => {
+      const newToy = req.body;
       console.log(newToy);
       const result = await herotoycollection.insertOne(newToy);
       res.send(result);
@@ -58,10 +70,10 @@ run().catch(console.dir);
 
 
 
-app.get('/',(req, res)=>{
-    res.send('Toy Hero is running')
+app.get('/', (req, res) => {
+  res.send('Toy Hero is running')
 })
 
-app.listen(port, ()=>{
-    console.log(`Toy Hero Server is running on port: ${port}`)
+app.listen(port, () => {
+  console.log(`Toy Hero Server is running on port: ${port}`)
 })

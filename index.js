@@ -50,7 +50,16 @@ async function run() {
       const result = await herotoycollection.findOne(query,option);
       res.send(result);
     })
+    // email data
 
+    app.get('/toy',async(req,res)=>{
+      let query ={};
+      if (req.query?.email){
+        query={email: req.query.email}
+      }
+      const result=await herotoycollection.find(query).toArray();
+      res.send(result);
+    })
     app.post('/toy', async (req, res) => {
       const newToy = req.body;
       console.log(newToy);

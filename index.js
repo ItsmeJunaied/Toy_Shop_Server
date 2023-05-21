@@ -60,6 +60,16 @@ async function run() {
       const result=await herotoycollection.find(query).toArray();
       res.send(result);
     })
+    // update
+    app.get('/toy/:id', async(req,res)=>{
+      const id =req.params.id;
+      const query ={_id: new ObjectId(id)}
+      const result=await herotoycollection.findOne(query);
+      
+      // const cursor = herotoycollection.find();
+      // const result = await cursor.toArray();
+      res.send(result);
+    })
     app.post('/toy', async (req, res) => {
       const newToy = req.body;
       console.log(newToy);

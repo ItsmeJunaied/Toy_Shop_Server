@@ -33,43 +33,66 @@ async function run() {
 
     const herotoycollection = client.db('herotoyDB').collection('herotoy');
 
-    app.get('/toy', async (re, res) => {
-      const cursor = herotoycollection.find();
-      const result = await cursor.toArray();
+    app.get('/toy', async (req, res) => {
+      const email = req.query.email;
+      const categoty = req.query.categoty;
+      let query = {};
+    
+      if (email) {
+        query.email = email;
+      }
+    
+      if (categoty) {
+        query.categoty= categoty;
+      }
+    
+      const result = await herotoycollection.find(query).toArray();
       res.send(result);
-    })
+    });
+    
 
+    
     app.get('/toy/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
 
       const option = {
-        projection: { name: 1, sname: 1, email: 1, price: 1, rating: 1, quantity: 1, detail: 1, photo: 1 },
+        projection: { name: 1, categoty: 1, sname: 1, email: 1, price: 1, rating: 1, quantity: 1, detail: 1, photo: 1 },
 
       };
-      const result = await herotoycollection.findOne(query,option);
+      const result = await herotoycollection.findOne(query, option);
       res.send(result);
     })
+    
+    
+
     // email data
 
-    app.get('/toy',async(req,res)=>{
-      let query ={};
-      if (req.query?.email){
-        query={email: req.query.email}
-      }
-      const result=await herotoycollection.find(query).toArray();
-      res.send(result);
-    })
+    
+
     // update
-    app.get('/toy/:id', async(req,res)=>{
-      const id =req.params.id;
-      const query ={_id: new ObjectId(id)}
-      const result=await herotoycollection.findOne(query);
-      
-      // const cursor = herotoycollection.find();
-      // const result = await cursor.toArray();
+    app.put('/toy/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true };
+      const updatedToy=req.body;
+      const toy = {
+        $set: {
+          name: updatedToy.name,
+          categoty: updatedToy.categoty,
+          sname: updatedToy.sname,
+          email: updatedToy.email,
+          price: updatedToy.price,
+          rating: updatedToy.rating,
+          quantity: updatedToy.quantity,
+          detail: updatedToy.detail,
+          photo: updatedToy.photo
+        }
+      }
+      const result =await herotoycollection.updateOne(filter,toy,);
       res.send(result);
     })
+
     app.post('/toy', async (req, res) => {
       const newToy = req.body;
       console.log(newToy);
@@ -78,9 +101,9 @@ async function run() {
     })
 
     // delete
-    app.delete('/toy/:id', async(req,res)=>{
-      const id=req.params.id;
-      const query ={_id: new ObjectId(id)}
+    app.delete('/toy/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
       const result = await herotoycollection.deleteOne(query);
       res.send(result);
     })

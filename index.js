@@ -33,6 +33,27 @@ async function run() {
 
     const herotoycollection = client.db('herotoyDB').collection('herotoy');
 
+    const indexkeys={name :1, categoty:1};
+
+    const indexOption={name : 'titleCategory'}
+
+    const result = await herotoycollection.createIndex(indexkeys, indexOption);
+
+    app.get("/toy/:text", async (req, res) => {
+      const searchText = req.params.text;
+    
+      const result = await herotoycollection
+        .find({
+          $or: [
+            { name: { $regex: searchText, $options: "i" } },
+            { category: { $regex: searchText, $options: "i" } },
+          ],
+        })
+        .toArray();
+      res.send(result);
+    });
+    
+
     app.get('/toy', async (req, res) => {
       const email = req.query.email;
       const categoty = req.query.categoty;
